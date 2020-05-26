@@ -1,0 +1,12 @@
+# Desktop Services Store, metadata for Finder.
+.DS_Store
+
+# The directory Swift will write compiled artifacts to.
+/.build
+
+# Source code from SPM dependencies
+/Packages
+
+# Xcode project files
+/*.xcodeproj
+xcuserdata/

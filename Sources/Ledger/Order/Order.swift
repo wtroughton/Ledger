@@ -8,14 +8,14 @@ public struct Order {
         case bid, ask
     }
     
-    init(id: String, bid_price: Double, bid_size: Int) {
+    public init(id: String, bid_price: Double, bid_size: Int) {
         self.id = id
         self.price = bid_price
         self.size = bid_size
         self.transactionType = TransactionType.bid
     }
     
-    init(id: String, ask_price: Double, ask_size: Int) {
+    public init(id: String, ask_price: Double, ask_size: Int) {
         self.id = id
         self.price = ask_price
         self.size = ask_size

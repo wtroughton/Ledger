@@ -2,15 +2,34 @@ import XCTest
 @testable import Ledger
 
 class OrderTests: XCTestCase {
-    func testInitialization() {
-        let bidOrder = Order(id: "1", bid_price: 100.00, bid_size: 25)
+    func testLimitOrderInit() {
+        let bidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
         XCTAssertNotNil(bidOrder)
         
-        let askOrder = Order(id: "2", ask_price: 101.00, ask_size: 15)
+        let askOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
         XCTAssertNotNil(askOrder)
     }
     
+    func testCancelOrderInit() {
+        let cancelBidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
+        XCTAssertNotNil(cancelBidOrder)
+        
+        let cancelAskOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
+        XCTAssertNotNil(cancelAskOrder)
+    }
+    
+    func testModifyOrderInit() {
+        let modifyBidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
+        XCTAssertNotNil(modifyBidOrder)
+        
+        let modifyAskOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
+        XCTAssertNotNil(modifyAskOrder)
+    }
+    
+    
     static var allTests = [
-        ("testInitialization", testInitialization),
+        ("testLimitOrderInit", testLimitOrderInit),
+        ("testCancelOrderInit", testCancelOrderInit),
+        ("testModifyOrderInit", testModifyOrderInit),
     ]
 }

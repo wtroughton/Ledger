@@ -567,3 +567,19 @@ extension Map {
     return excluding(SortedSet(keys))
   }
 }
+
+extension Map where Value: AdditiveArithmetic {
+  /// Adds the value stored in the map for the given key, or, if they key does not exist, add a new key-value pair to the map.
+  /// Returns the value that was replaced, or `nil` if a new key-value pair was added.
+  ///
+  /// This method invalidates all existing indexes into `self`.
+  ///
+  /// - Complexity: O(log(`count`))
+  @discardableResult
+  public mutating func updateOrAddValue(_ value: Value, forKey key: Key) -> Value? {
+    if let oldValue = tree.insertOrFind((key, value))?.1 {
+      return tree.insertOrReplace((key, oldValue + value))?.1
+    }
+    return nil
+  }
+}

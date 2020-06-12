@@ -423,6 +423,17 @@ class MapTests: XCTestCase {
     XCTAssertEqual(Array(m.values), [0, 0, 10, 18])
   }
 
+  func testUpdateOrAddValue() {
+    var m1: Map<Int, Int> = [1: 10, 2: 20, 3: 30, 4: 40, 5: 50]
+    let m2: Map<Int, Int> = [1: 20, 2: 30, 3: 40, 4: 50, 5: 60]
+
+    for i in 1...5 {
+      m1.updateOrAddValue(10, forKey: i)
+    }
+
+    assertEqualElements(m1, m2)
+  }
+
   func testMerging() {
     let m1: Map<Int, Int> = [1: 2, 2: 4, 5: 10, 6: 12]
     let m2: Map<Int, Int> = [2: 20, 3: 30, 4: 40]

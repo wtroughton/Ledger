@@ -8,6 +8,10 @@ struct Order {
   var transactionType: Order.TransactionType
   var timestamp: Date
 
+  var impliedSize: Int {
+    updateType == .insert ? size : -(size)
+  }
+
   public enum UpdateType: String {
     case insert, delete
   }

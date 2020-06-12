@@ -10,25 +10,24 @@ import Foundation
 
 /// Left-aligned column layout.
 internal func layoutColumns(lines: [[String]], separator: String = "   ") -> [String] {
-    let columnCount = lines.reduce(0) { a, l in max(a, l.count) }
-    var columnWidths = [Int](repeating: 0, count: columnCount)
-    lines.lazy.flatMap { $0.enumerated() }.forEach { i, c in
-        columnWidths[i] = max(columnWidths[i], c.count)
-    }
+  let columnCount = lines.reduce(0) { a, l in max(a, l.count) }
+  var columnWidths = [Int](repeating: 0, count: columnCount)
+  lines.lazy.flatMap { $0.enumerated() }.forEach { i, c in
+    columnWidths[i] = max(columnWidths[i], c.count)
+  }
 
-    var result: [String] = []
-    result.reserveCapacity(lines.count)
-    for columns in lines {
-        var line = ""
-        columns.enumerated().forEach { i, c in
-            if i > 0 {
-                line += separator
-            }
-            line += c
-            line += String(repeating: " ", count: columnWidths[i] - c.count)
-        }
-        result.append(line)
+  var result: [String] = []
+  result.reserveCapacity(lines.count)
+  for columns in lines {
+    var line = ""
+    columns.enumerated().forEach { i, c in
+      if i > 0 {
+        line += separator
+      }
+      line += c
+      line += String(repeating: " ", count: columnWidths[i] - c.count)
     }
-    return result
+    result.append(line)
+  }
+  return result
 }
-

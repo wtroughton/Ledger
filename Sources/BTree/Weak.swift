@@ -7,9 +7,9 @@
 //
 
 internal struct Weak<T: AnyObject> {
-    weak var value: T?
+  weak var value: T?
 
-    init(_ value: T) {
-        self.value = value
-    }
+  init(_ value: T) {
+    self.value = value
+  }
 }

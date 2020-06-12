@@ -16,7 +16,13 @@ struct Order {
     case bid, ask
   }
 
-  init(id: String, bidSize: Int, bidPrice: Double, updateType: Order.UpdateType = .insert, timestamp: Date = Date()) {
+  init(
+    id: String,
+    bidSize: Int,
+    bidPrice: Double,
+    updateType: Order.UpdateType = .insert,
+    timestamp: Date = Date()
+  ) {
     self.id = id
     self.size = bidSize
     self.price = bidPrice
@@ -25,7 +31,13 @@ struct Order {
     self.timestamp = timestamp
   }
 
-  init(id: String, askSize: Int, askPrice: Double, updateType: Order.UpdateType = .insert, timestamp: Date = Date()) {
+  init(
+    id: String,
+    askSize: Int,
+    askPrice: Double,
+    updateType: Order.UpdateType = .insert,
+    timestamp: Date = Date()
+  ) {
     self.id = id
     self.size = askSize
     self.price = askPrice

@@ -1,6 +1,5 @@
-import XCTest
-
 import LedgerTests
+import XCTest
 
 var tests = [XCTestCaseEntry]()
 tests += LedgerTests.allTests()

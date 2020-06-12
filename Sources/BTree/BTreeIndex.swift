@@ -18,63 +18,64 @@
 ///
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
 public struct BTreeIndex<Key: Comparable, Value> {
-    typealias Node = BTreeNode<Key, Value>
-    typealias State = BTreeWeakPath<Key, Value>
+  typealias Node = BTreeNode<Key, Value>
+  typealias State = BTreeWeakPath<Key, Value>
 
-    internal private(set) var state: State
+  internal private(set) var state: State
 
-    internal init(_ state: State) {
-        self.state = state
-    }
-    
-    /// Advance to the next index.
-    ///
-    /// - Requires: self is valid and not the end index.
-    /// - Complexity: Amortized O(1).
-    mutating func increment() {
-        state.moveForward()
-    }
-    
-    /// Advance to the previous index.
-    ///
-    /// - Requires: self is valid and not the start index.
-    /// - Complexity: Amortized O(1).
-    mutating func decrement() {
-        state.moveBackward()
-    }
+  internal init(_ state: State) {
+    self.state = state
+  }
 
-    /// Advance this index by `distance` elements.
-    ///
-    /// - Complexity: O(log(*n*)) where *n* is the number of elements in the tree.
-    mutating func advance(by distance: Int) {
-        state.move(toOffset: state.offset + distance)
-    }
+  /// Advance to the next index.
+  ///
+  /// - Requires: self is valid and not the end index.
+  /// - Complexity: Amortized O(1).
+  mutating func increment() {
+    state.moveForward()
+  }
 
-    @discardableResult
-    mutating func advance(by distance: Int, limitedBy limit: BTreeIndex) -> Bool {
-        let originalDistance = limit.state.offset - state.offset
-        if (distance >= 0 && originalDistance >= 0 && distance > originalDistance)
-            || (distance <= 0 && originalDistance <= 0 && distance < originalDistance) {
-            self = limit
-            return false
-        }
-        state.move(toOffset: state.offset + distance)
-        return true
+  /// Advance to the previous index.
+  ///
+  /// - Requires: self is valid and not the start index.
+  /// - Complexity: Amortized O(1).
+  mutating func decrement() {
+    state.moveBackward()
+  }
+
+  /// Advance this index by `distance` elements.
+  ///
+  /// - Complexity: O(log(*n*)) where *n* is the number of elements in the tree.
+  mutating func advance(by distance: Int) {
+    state.move(toOffset: state.offset + distance)
+  }
+
+  @discardableResult
+  mutating func advance(by distance: Int, limitedBy limit: BTreeIndex) -> Bool {
+    let originalDistance = limit.state.offset - state.offset
+    if (distance >= 0 && originalDistance >= 0 && distance > originalDistance)
+      || (distance <= 0 && originalDistance <= 0 && distance < originalDistance)
+    {
+      self = limit
+      return false
     }
+    state.move(toOffset: state.offset + distance)
+    return true
+  }
 }
 
 extension BTreeIndex: Comparable {
-    /// Return true iff `a` is equal to `b`.
-    public static func ==(a: BTreeIndex, b: BTreeIndex) -> Bool {
-        precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
-        return a.state.offset == b.state.offset
-    }
+  /// Return true iff `a` is equal to `b`.
+  public static func == (a: BTreeIndex, b: BTreeIndex) -> Bool {
+    precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
+    return a.state.offset == b.state.offset
+  }
 
-    /// Return true iff `a` is less than `b`.
-    public static func <(a: BTreeIndex, b: BTreeIndex) -> Bool {
-        precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
-        return a.state.offset < b.state.offset
-    }
+  /// Return true iff `a` is less than `b`.
+  public static func < (a: BTreeIndex, b: BTreeIndex) -> Bool {
+    precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
+    return a.state.offset < b.state.offset
+  }
 }
 
 /// A mutable path in a B-tree, holding weak references to nodes on the path.
@@ -85,110 +86,114 @@ extension BTreeIndex: Comparable {
 /// The path checks for this during navigation, and traps if it finds itself invalidated.
 ///
 internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
-    typealias Node = BTreeNode<Key, Value>
+  typealias Node = BTreeNode<Key, Value>
 
-    var _root: Weak<Node>
-    var offset: Int
+  var _root: Weak<Node>
+  var offset: Int
 
-    var _path: [Weak<Node>]
-    var _slots: [Int]
-    var _node: Weak<Node>
-    var slot: Int?
+  var _path: [Weak<Node>]
+  var _slots: [Int]
+  var _node: Weak<Node>
+  var slot: Int?
 
-    init(root: Node) {
-        self._root = Weak(root)
-        self.offset = root.count
-        self._path = []
-        self._slots = []
-        self._node = Weak(root)
-        self.slot = nil
+  init(root: Node) {
+    self._root = Weak(root)
+    self.offset = root.count
+    self._path = []
+    self._slots = []
+    self._node = Weak(root)
+    self.slot = nil
+  }
+
+  var root: Node {
+    guard let root = _root.value else { invalid() }
+    return root
+  }
+  var count: Int { return root.count }
+  var length: Int { return _path.count + 1 }
+
+  var node: Node {
+    guard let node = _node.value else { invalid() }
+    return node
+  }
+
+  internal func expectRoot(_ root: Node) {
+    expectValid(_root.value === root)
+  }
+
+  internal func expectValid(
+    _ expression: @autoclosure () -> Bool,
+    file: StaticString = #file,
+    line: UInt = #line
+  ) {
+    precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
+  }
+
+  internal func invalid(_ file: StaticString = #file, line: UInt = #line) -> Never {
+    preconditionFailure("Invalid BTreeIndex", file: file, line: line)
+  }
+
+  mutating func popFromSlots() {
+    assert(self.slot != nil)
+    let node = self.node
+    offset += node.count - node.offset(ofSlot: slot!)
+    slot = nil
+  }
+
+  mutating func popFromPath() {
+    assert(_path.count > 0 && slot == nil)
+    let child = node
+    _node = _path.removeLast()
+    expectValid(node.children[_slots.last!] === child)
+    slot = _slots.removeLast()
+  }
+
+  mutating func pushToPath() {
+    assert(self.slot != nil)
+    let child = node.children[slot!]
+    _path.append(_node)
+    _node = Weak(child)
+    _slots.append(slot!)
+    slot = nil
+  }
+
+  mutating func pushToSlots(_ slot: Int, offsetOfSlot: Int) {
+    assert(self.slot == nil)
+    offset -= node.count - offsetOfSlot
+    self.slot = slot
+  }
+
+  func forEach(ascending: Bool, body: (Node, Int) -> Void) {
+    if ascending {
+      var child: Node? = node
+      body(child!, slot!)
+      for i in (0..<_path.count).reversed() {
+        guard let node = _path[i].value else { invalid() }
+        let slot = _slots[i]
+        expectValid(node.children[slot] === child)
+        child = node
+        body(node, slot)
+      }
+    } else {
+      for i in 0..<_path.count {
+        guard let node = _path[i].value else { invalid() }
+        let slot = _slots[i]
+        expectValid(
+          node.children[slot] === (i < _path.count - 1 ? _path[i + 1].value : _node.value)
+        )
+        body(node, slot)
+      }
+      body(node, slot!)
     }
+  }
 
-    var root: Node {
-        guard let root = _root.value else { invalid() }
-        return root
+  func forEachSlot(ascending: Bool, body: (Int) -> Void) {
+    if ascending {
+      body(slot!)
+      _slots.reversed().forEach(body)
+    } else {
+      _slots.forEach(body)
+      body(slot!)
     }
-    var count: Int { return root.count }
-    var length: Int { return _path.count + 1}
-
-    var node: Node {
-        guard let node = _node.value else { invalid() }
-        return node
-    }
-    
-    internal func expectRoot(_ root: Node) {
-        expectValid(_root.value === root)
-    }
-
-    internal func expectValid(_ expression: @autoclosure () -> Bool, file: StaticString = #file, line: UInt = #line) {
-        precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
-    }
-
-    internal func invalid(_ file: StaticString = #file, line: UInt = #line) -> Never  {
-        preconditionFailure("Invalid BTreeIndex", file: file, line: line)
-    }
-
-    mutating func popFromSlots() {
-        assert(self.slot != nil)
-        let node = self.node
-        offset += node.count - node.offset(ofSlot: slot!)
-        slot = nil
-    }
-
-    mutating func popFromPath() {
-        assert(_path.count > 0 && slot == nil)
-        let child = node
-        _node = _path.removeLast()
-        expectValid(node.children[_slots.last!] === child)
-        slot = _slots.removeLast()
-    }
-
-    mutating func pushToPath() {
-        assert(self.slot != nil)
-        let child = node.children[slot!]
-        _path.append(_node)
-        _node = Weak(child)
-        _slots.append(slot!)
-        slot = nil
-    }
-
-    mutating func pushToSlots(_ slot: Int, offsetOfSlot: Int) {
-        assert(self.slot == nil)
-        offset -= node.count - offsetOfSlot
-        self.slot = slot
-    }
-
-    func forEach(ascending: Bool, body: (Node, Int) -> Void) {
-        if ascending {
-            var child: Node? = node
-            body(child!, slot!)
-            for i in (0 ..< _path.count).reversed() {
-                guard let node = _path[i].value else { invalid() }
-                let slot = _slots[i]
-                expectValid(node.children[slot] === child)
-                child = node
-                body(node, slot)
-            }
-        }
-        else {
-            for i in 0 ..< _path.count {
-                guard let node = _path[i].value else { invalid() }
-                let slot = _slots[i]
-                expectValid(node.children[slot] === (i < _path.count - 1 ? _path[i + 1].value : _node.value))
-                body(node, slot)
-            }
-            body(node, slot!)
-        }
-    }
-
-    func forEachSlot(ascending: Bool, body: (Int) -> Void) {
-        if ascending {
-            body(slot!)
-            _slots.reversed().forEach(body)
-        }
-        else {
-            _slots.forEach(body)
-            body(slot!)
-        }
-    }
+  }
 }

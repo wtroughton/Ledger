@@ -3,18 +3,28 @@
 import PackageDescription
 
 let package = Package(
-    name: "Ledger",
-    products: [
-        .library(
-            name: "Ledger",
-            targets: ["Ledger"]),
-    ],
-    targets: [
-        .target(
-            name: "Ledger",
-            dependencies: []),
-        .testTarget(
-            name: "LedgerTests",
-            dependencies: ["Ledger"]),
-    ]
+  name: "Ledger",
+  products: [
+    .library(
+      name: "Ledger",
+      targets: ["Ledger"]
+    )
+  ],
+  dependencies: [
+  ],
+  targets: [
+    .target(
+      name: "Ledger",
+      dependencies: [],
+      path: "Sources"
+    ),
+    .testTarget(
+      name: "LedgerTests",
+      dependencies: ["Ledger"]
+    ),
+    .testTarget(
+      name: "BTreeTests",
+      dependencies: ["Ledger"]
+    )
+  ]
 )

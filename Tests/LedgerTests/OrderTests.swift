@@ -3,33 +3,23 @@ import XCTest
 
 class OrderTests: XCTestCase {
     func testLimitOrderInit() {
-        let bidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
+        let bidOrder = Order(id: "1", bidSize: 25, bidPrice: 100.00)
         XCTAssertNotNil(bidOrder)
         
-        let askOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
+        let askOrder = Order(id: "2", askSize: 15, askPrice: 101.00)
         XCTAssertNotNil(askOrder)
     }
     
     func testCancelOrderInit() {
-        let cancelBidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
+      let cancelBidOrder = Order(id: "1", bidSize: 25, bidPrice: 100.00, updateType: .delete)
         XCTAssertNotNil(cancelBidOrder)
         
-        let cancelAskOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
+      let cancelAskOrder = Order(id: "2", askSize: 15, askPrice: 101.00, updateType: .delete)
         XCTAssertNotNil(cancelAskOrder)
     }
-    
-    func testModifyOrderInit() {
-        let modifyBidOrder = LimitOrder(id: "1", bidPrice: 100.00, bidSize: 25)
-        XCTAssertNotNil(modifyBidOrder)
-        
-        let modifyAskOrder = LimitOrder(id: "2", askPrice: 101.00, askSize: 15)
-        XCTAssertNotNil(modifyAskOrder)
-    }
-    
     
     static var allTests = [
         ("testLimitOrderInit", testLimitOrderInit),
         ("testCancelOrderInit", testCancelOrderInit),
-        ("testModifyOrderInit", testModifyOrderInit),
     ]
 }

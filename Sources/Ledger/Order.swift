@@ -1,6 +1,6 @@
 import Foundation
 
-struct Order {
+public struct Order {
   var id: String
   var size: Int
   var price: Double

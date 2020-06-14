@@ -1,4 +1,4 @@
-struct OrderBook {
+public struct OrderBook {
   var bids: Map<Double, Int> = [:]
   var asks: Map<Double, Int> = [:]
 

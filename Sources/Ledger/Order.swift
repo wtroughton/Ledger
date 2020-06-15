@@ -1,14 +1,14 @@
 import Foundation
 
 public struct Order {
-  var id: String
-  var size: Int
-  var price: Double
-  var updateType: Order.UpdateType
-  var transactionType: Order.TransactionType
-  var timestamp: Date
+  public private(set) var id: String
+  public private(set) var size: Int
+  public private(set) var price: Double
+  public private(set) var updateType: Order.UpdateType
+  public private(set) var transactionType: Order.TransactionType
+  public private(set) var timestamp: Date
 
-  var impliedSize: Int {
+  public var impliedSize: Int {
     updateType == .insert ? size : -(size)
   }
 
@@ -20,7 +20,7 @@ public struct Order {
     case bid, ask
   }
 
-  init(
+  public init(
     id: String,
     bidSize: Int,
     bidPrice: Double,
@@ -35,7 +35,7 @@ public struct Order {
     self.timestamp = timestamp
   }
 
-  init(
+  public init(
     id: String,
     askSize: Int,
     askPrice: Double,
